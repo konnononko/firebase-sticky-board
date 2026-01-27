@@ -57,7 +57,7 @@ npm create vite@latest firebase-sticky-board
 cd firebase-sticky-board
 npm install
 npm install firebase
-````
+```
 
 * `src/firebase.ts` に Firebase 初期化処理を記述する
 
