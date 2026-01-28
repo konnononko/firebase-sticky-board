@@ -43,6 +43,7 @@ export const Board: React.FC = () => {
             padding: 8,
             boxShadow: "2px 2px 8px #0001",
             userSelect: "none",
+            color: "#222",
           }}
         >
           {note.text}
