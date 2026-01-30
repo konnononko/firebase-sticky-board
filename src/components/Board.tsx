@@ -16,21 +16,28 @@ export const Board: React.FC = () => {
   const [text, setText] = useState("");
 
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [draggingNote, setDraggingNote] = useState<Note | null>(null);
   const offsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const boardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const notesRef = collection(db, "boards", "default", "notes");
     const unsubscribe = onSnapshot(notesRef, (snapshot) => {
-      setNotes(
-        snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
+      setNotes(_oldNotes => {
+        const serverNotes = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
           id: doc.id,
           ...doc.data(),
-        })) as Note[]
-      );
+        })) as Note[];
+        if (draggingId && draggingNote) {
+          return serverNotes.map(n =>
+            n.id === draggingId ? draggingNote : n
+          );
+        }
+        return serverNotes;
+      });
     });
     return unsubscribe;
-  }, []);
+  }, [draggingId, draggingNote]);
 
   const handleAddNote = async () => {
     if (!text.trim()) return;
@@ -48,6 +55,7 @@ export const Board: React.FC = () => {
 
   const handlePointerDown = (e: React.PointerEvent, note: Note) => {
     setDraggingId(note.id);
+    setDraggingNote(note);
     const boardRect = boardRef.current?.getBoundingClientRect();
     const offsetX = e.clientX - note.x - (boardRect?.left || 0);
     const offsetY = e.clientY - note.y - (boardRect?.top || 0);
@@ -56,32 +64,30 @@ export const Board: React.FC = () => {
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!draggingId) return;
+    if (!draggingId || !draggingNote) return;
+    const boardRect = boardRef.current?.getBoundingClientRect();
+    const newX = e.clientX - offsetRef.current.x - (boardRect?.left || 0);
+    const newY = e.clientY - offsetRef.current.y - (boardRect?.top || 0);
+    setDraggingNote({ ...draggingNote, x: newX, y: newY });
     setNotes(notes =>
       notes.map(n =>
         n.id === draggingId
-          ? {
-            ...n,
-            x: e.clientX - offsetRef.current.x - (boardRef.current?.getBoundingClientRect().left || 0),
-            y: e.clientY - offsetRef.current.y - (boardRef.current?.getBoundingClientRect().top || 0),
-          }
+          ? { ...n, x: newX, y: newY }
           : n
       )
     );
   };
 
   const handlePointerUp = async () => {
-    if (!draggingId) return;
-    const note = notes.find(n => n.id === draggingId);
-    if (note) {
-      const noteRef = doc(db, "boards", "default", "notes", note.id);
-      await updateDoc(noteRef, {
-        x: note.x,
-        y: note.y,
-        updatedAt: serverTimestamp(),
-      });
-    };
+    if (!draggingId || !draggingNote) return;
+    const noteRef = doc(db, "boards", "default", "notes", draggingNote.id);
+    await updateDoc(noteRef, {
+      x: draggingNote.x,
+      y: draggingNote.y,
+      updatedAt: serverTimestamp(),
+    });
     setDraggingId(null);
+    setDraggingNote(null);
   };
 
   return (
