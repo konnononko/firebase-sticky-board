@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { db } from "../firebase";
-import { collection, onSnapshot, QueryDocumentSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, onSnapshot, QueryDocumentSnapshot, addDoc, serverTimestamp, updateDoc, doc } from "firebase/firestore";
 import type { DocumentData } from "firebase/firestore"
 
 type Note = {
@@ -14,6 +14,10 @@ export const Board: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [showInput, setShowInput] = useState(false);
   const [text, setText] = useState("");
+
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const offsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const boardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const notesRef = collection(db, "boards", "default", "notes");
@@ -42,8 +46,51 @@ export const Board: React.FC = () => {
     setShowInput(false);
   };
 
+  const handlePointerDown = (e: React.PointerEvent, note: Note) => {
+    setDraggingId(note.id);
+    const boardRect = boardRef.current?.getBoundingClientRect();
+    const offsetX = e.clientX - note.x - (boardRect?.left || 0);
+    const offsetY = e.clientY - note.y - (boardRect?.top || 0);
+    offsetRef.current = { x: offsetX, y: offsetY };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!draggingId) return;
+    setNotes(notes =>
+      notes.map(n =>
+        n.id === draggingId
+          ? {
+            ...n,
+            x: e.clientX - offsetRef.current.x - (boardRef.current?.getBoundingClientRect().left || 0),
+            y: e.clientY - offsetRef.current.y - (boardRef.current?.getBoundingClientRect().top || 0),
+          }
+          : n
+      )
+    );
+  };
+
+  const handlePointerUp = async () => {
+    if (!draggingId) return;
+    const note = notes.find(n => n.id === draggingId);
+    if (note) {
+      const noteRef = doc(db, "boards", "default", "notes", note.id);
+      await updateDoc(noteRef, {
+        x: note.x,
+        y: note.y,
+        updatedAt: serverTimestamp(),
+      });
+    };
+    setDraggingId(null);
+  };
+
   return (
-    <div style={{ position: "relative", width: "100vw", height: "100vh", background: "#f8f8f8" }}>
+    <div
+      ref={boardRef}
+      style={{ position: "relative", width: "100vw", height: "100vh", background: "#f8f8f8" }}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+    >
       <button
         onClick={() => setShowInput(true)}
         style={{ position: "absolute", left: 16, top: 16, zIndex: 2 }}
@@ -84,6 +131,7 @@ export const Board: React.FC = () => {
             userSelect: "none",
             color: "#222",
           }}
+          onPointerDown={e => handlePointerDown(e, note)}
         >
           {note.text}
         </div>
