@@ -53,10 +53,10 @@
 - Firebase SDK を追加
 
 ```bash
-npm create vite@latest firebase-sticky-board
+pnpm create vite@latest firebase-sticky-board
 cd firebase-sticky-board
-npm install
-npm install firebase
+pnpm install
+pnpm install firebase
 ```
 
 * `src/firebase.ts` に Firebase 初期化処理を記述する
@@ -144,10 +144,10 @@ boards/default/notes/{noteId}
 - ビルドしてデプロイ
 
 ```bash
-npm install -g firebase-tools
+pnpm add -g firebase-tools
 firebase login
 firebase init hosting
-npm run build
+pnpm build
 firebase deploy
 ```
 
@@ -188,9 +188,9 @@ firebase deploy
 
 - [x] 初期テキスト付きで付箋を作成できる
 - [x] 付箋をドラッグして移動できる
-- [ ] 複数ブラウザで同期される
-- [ ] Firebase Hosting で公開されている
-- [ ] README が存在する
+- [x] 複数ブラウザで同期される
+- [x] Firebase Hosting で公開されている
+- [x] README が存在する
 
 ---
 
@@ -209,3 +209,12 @@ firebase deploy
 - 分割例：`<StickyNote />`コンポーネント、`NoteInput`フォーム、ドラッグ操作用のカスタムフックなど
 
 ※ ただしMVP段階では不要。過度な抽象化は避けること。
+
+## （補足）認証・セキュリティルールについて
+
+MVP では認証や厳密な Firestore ルールは未対応です。
+本格運用時は以下の拡張を検討してください。
+
+- Firebase Authentication の導入
+- Firestore security rules の強化（例：認証ユーザーのみ書き込み可）
+- ボードごとの権限分離
