@@ -15,7 +15,6 @@ export const Board: React.FC = () => {
   const [showInput, setShowInput] = useState(false);
   const [text, setText] = useState("");
 
-  const [draggingId, setDraggingId] = useState<string | null>(null);
   const [draggingNote, setDraggingNote] = useState<Note | null>(null);
   const offsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const boardRef = useRef<HTMLDivElement>(null);
@@ -28,16 +27,16 @@ export const Board: React.FC = () => {
           id: doc.id,
           ...doc.data(),
         })) as Note[];
-        if (draggingId && draggingNote) {
+        if (draggingNote) {
           return serverNotes.map(n =>
-            n.id === draggingId ? draggingNote : n
+            n.id === draggingNote.id ? draggingNote : n
           );
         }
         return serverNotes;
       });
     });
     return unsubscribe;
-  }, [draggingId, draggingNote]);
+  }, [draggingNote]);
 
   const handleAddNote = async () => {
     if (!text.trim()) return;
@@ -54,7 +53,6 @@ export const Board: React.FC = () => {
   };
 
   const handlePointerDown = (e: React.PointerEvent, note: Note) => {
-    setDraggingId(note.id);
     setDraggingNote(note);
     const boardRect = boardRef.current?.getBoundingClientRect();
     const offsetX = e.clientX - note.x - (boardRect?.left || 0);
@@ -64,14 +62,14 @@ export const Board: React.FC = () => {
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!draggingId || !draggingNote) return;
+    if (!draggingNote) return;
     const boardRect = boardRef.current?.getBoundingClientRect();
     const newX = e.clientX - offsetRef.current.x - (boardRect?.left || 0);
     const newY = e.clientY - offsetRef.current.y - (boardRect?.top || 0);
     setDraggingNote({ ...draggingNote, x: newX, y: newY });
     setNotes(notes =>
       notes.map(n =>
-        n.id === draggingId
+        n.id === draggingNote.id
           ? { ...n, x: newX, y: newY }
           : n
       )
@@ -79,14 +77,13 @@ export const Board: React.FC = () => {
   };
 
   const handlePointerUp = async () => {
-    if (!draggingId || !draggingNote) return;
+    if (!draggingNote) return;
     const noteRef = doc(db, "boards", "default", "notes", draggingNote.id);
     await updateDoc(noteRef, {
       x: draggingNote.x,
       y: draggingNote.y,
       updatedAt: serverTimestamp(),
     });
-    setDraggingId(null);
     setDraggingNote(null);
   };
 
