@@ -8,6 +8,7 @@ type Note = {
   text: string;
   x: number;
   y: number;
+  color?: string;
 };
 
 export const Board: React.FC = () => {
@@ -45,6 +46,7 @@ export const Board: React.FC = () => {
       text,
       x: 60 + Math.random() * 400,
       y: 60 + Math.random() * 300,
+      color: "#fffbe7",
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -55,6 +57,11 @@ export const Board: React.FC = () => {
   const handleDeleteNote = async (id: string) => {
     const noteRef = doc(db, "boards", "default", "notes", id);
     await deleteDoc(noteRef);
+  };
+
+  const handleChangeColor = async (id: string, color: string) => {
+    const noteRef = doc(db, "boards", "default", "notes", id);
+    await updateDoc(noteRef, { color, updatedAt: serverTimestamp() });
   };
 
   const handlePointerDown = (e: React.PointerEvent, note: Note) => {
@@ -131,7 +138,7 @@ export const Board: React.FC = () => {
             top: note.y,
             minWidth: 120,
             minHeight: 80,
-            background: "#fffbe7",
+            background: note.color ?? "#fffbe7",
             border: "1px solid #e0c97f",
             borderRadius: 8,
             padding: 8,
@@ -142,6 +149,20 @@ export const Board: React.FC = () => {
           onPointerDown={e => handlePointerDown(e, note)}
         >
           {note.text}
+          <div style={{display: "flex", gap: 4, marginTop: 8}}>
+            {["#fffbe7", "#c2e7ff", "#ffd6e0"].map(c => (
+              <button
+                key={c}
+                style={{
+                  width: 20, height: 20, borderRadius: "50%",
+                  border: c === (note.color ?? "#fffbe7") ? "2px solid #444" : "1px solid #ccc",
+                  background: c, cursor: "pointer",
+                }}
+                onClick={() => handleChangeColor(note.id, c)}
+                aria-label={`色を${c}に変更`}
+              />
+            ))}
+          </div>
           <button
             onClick={() => handleDeleteNote(note.id)}
             style={{
