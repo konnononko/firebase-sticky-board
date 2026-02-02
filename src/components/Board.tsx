@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { db } from "../firebase";
-import { collection, onSnapshot, QueryDocumentSnapshot, addDoc, serverTimestamp, updateDoc, doc } from "firebase/firestore";
+import { collection, onSnapshot, QueryDocumentSnapshot, addDoc, serverTimestamp, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import type { DocumentData } from "firebase/firestore"
 
 type Note = {
@@ -50,6 +50,11 @@ export const Board: React.FC = () => {
     });
     setText("");
     setShowInput(false);
+  };
+
+  const handleDeleteNote = async (id: string) => {
+    const noteRef = doc(db, "boards", "default", "notes", id);
+    await deleteDoc(noteRef);
   };
 
   const handlePointerDown = (e: React.PointerEvent, note: Note) => {
@@ -137,6 +142,24 @@ export const Board: React.FC = () => {
           onPointerDown={e => handlePointerDown(e, note)}
         >
           {note.text}
+          <button
+            onClick={() => handleDeleteNote(note.id)}
+            style={{
+              position: "absolute",
+              top: 4,
+              right: 4,
+              background: "transparent",
+              border: "none",
+              color: "#a55",
+              fontWeight: "bold",
+              fontSize: 16,
+              cursor: "pointer",
+              zIndex: 1,
+            }}
+            aria-label="付箋を削除"
+          >
+            x
+          </button>
         </div>
       ))}
     </div>
