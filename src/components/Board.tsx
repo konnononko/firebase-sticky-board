@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
 import { collection, onSnapshot, QueryDocumentSnapshot, addDoc, serverTimestamp, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import type { DocumentData } from "firebase/firestore"
+import { signInAnonymously, onAuthStateChanged } from "firebase/auth";
 
 type Note = {
   id: string;
@@ -19,6 +20,13 @@ export const Board: React.FC = () => {
   const [draggingNote, setDraggingNote] = useState<Note | null>(null);
   const offsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const boardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, user => {
+      if (!user) signInAnonymously(auth);
+    });
+    return unsub;
+  }, []);
 
   useEffect(() => {
     const notesRef = collection(db, "boards", "default", "notes");
