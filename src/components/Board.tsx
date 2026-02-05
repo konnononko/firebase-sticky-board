@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useParams } from "react-router-dom"
 import { db, auth } from "../firebase";
 import { collection, onSnapshot, QueryDocumentSnapshot, addDoc, serverTimestamp, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import type { DocumentData } from "firebase/firestore"
@@ -13,6 +14,10 @@ type Note = {
 };
 
 export const Board: React.FC = () => {
+  const { boardId } = useParams<{ boardId: string }>();
+
+  if (!boardId) return <div>Invalid boardId</div>;
+
   const [notes, setNotes] = useState<Note[]>([]);
   const [showInput, setShowInput] = useState(false);
   const [text, setText] = useState("");
@@ -29,7 +34,7 @@ export const Board: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const notesRef = collection(db, "boards", "default", "notes");
+    const notesRef = collection(db, "boards", boardId, "notes");
     const unsubscribe = onSnapshot(notesRef, (snapshot) => {
       setNotes(_oldNotes => {
         const serverNotes = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
@@ -45,11 +50,11 @@ export const Board: React.FC = () => {
       });
     });
     return unsubscribe;
-  }, [draggingNote]);
+  }, [draggingNote, boardId]);
 
   const handleAddNote = async () => {
     if (!text.trim()) return;
-    const notesRef = collection(db, "boards", "default", "notes");
+    const notesRef = collection(db, "boards", boardId, "notes");
     await addDoc(notesRef, {
       text,
       x: 60 + Math.random() * 400,
@@ -63,12 +68,12 @@ export const Board: React.FC = () => {
   };
 
   const handleDeleteNote = async (id: string) => {
-    const noteRef = doc(db, "boards", "default", "notes", id);
+    const noteRef = doc(db, "boards", boardId, "notes", id);
     await deleteDoc(noteRef);
   };
 
   const handleChangeColor = async (id: string, color: string) => {
-    const noteRef = doc(db, "boards", "default", "notes", id);
+    const noteRef = doc(db, "boards", boardId, "notes", id);
     await updateDoc(noteRef, { color, updatedAt: serverTimestamp() });
   };
 
@@ -98,7 +103,7 @@ export const Board: React.FC = () => {
 
   const handlePointerUp = async () => {
     if (!draggingNote) return;
-    const noteRef = doc(db, "boards", "default", "notes", draggingNote.id);
+    const noteRef = doc(db, "boards", boardId, "notes", draggingNote.id);
     await updateDoc(noteRef, {
       x: draggingNote.x,
       y: draggingNote.y,
