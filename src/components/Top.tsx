@@ -50,7 +50,7 @@ export const Top: React.FC = () => {
       <h2>firebase-sticky-board</h2>
       <p>付箋ホワイトボードを作る</p>
       <div style={{ margin: 16 }}>
-        {user?.isAnonymous ? (
+        {!user || user.isAnonymous ? (
           <button onClick={handleSignIn}>
             Googleでログイン
           </button>
