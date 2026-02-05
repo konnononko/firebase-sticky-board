@@ -133,6 +133,10 @@ boards/{boardId}/notes/{noteId}
 - 匿名ユーザーとして uid が取得できる
 - Google ログインユーザーとして uid が取得できる
 
+補足：
+- Google Cloud Console - Enabled APIs & services - Credentials で、プロジェクトのAPIキーについてWebsites, API restrictionsなどKey restrinctionsを設定した
+  - APIまわりで動かないとき、ここが関連することがあるかも
+
 ### 4. ボード作成フロー（オーナーは非匿名ログイン必須）
 
 目的：
@@ -216,9 +220,9 @@ firebase deploy --only firestore:rules
 
 - [x] 付箋削除：30〜60分
 - [x] 色変更：30〜90分
-- [] 認証基盤準備：60〜120分
-- [] ボード作成フロー：60〜120分
-- [] 共有リンク対応：60〜180分
+- [x] 認証基盤準備：60〜120分
+- [x] ボード作成フロー：60〜120分
+- [x] 共有リンク対応：60〜180分
 - [] Rules 導入：60〜180分
 - [] UI 微調整：30〜120分
 
