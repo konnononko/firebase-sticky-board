@@ -212,6 +212,9 @@ boards/{boardId}/notes/{noteId}
 
 例：
 ```bash
+firebase deploy
+
+# or 個別にデプロイ
 firebase deploy --only hosting
 firebase deploy --only firestore:rules
 ```
@@ -223,7 +226,7 @@ firebase deploy --only firestore:rules
 - [x] 認証基盤準備：60〜120分
 - [x] ボード作成フロー：60〜120分
 - [x] 共有リンク対応：60〜180分
-- [] Rules 導入：60〜180分
+- [x] Rules 導入：60〜180分
 - [] UI 微調整：30〜120分
 
 合計：おおむね 1〜2 週間（朝 30〜60 分ペース）
