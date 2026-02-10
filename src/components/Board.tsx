@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom"
+import { useParams, useLocation } from "react-router-dom"
 import { db, auth } from "../firebase";
 import { collection, onSnapshot, QueryDocumentSnapshot, addDoc, serverTimestamp, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import type { DocumentData } from "firebase/firestore"
@@ -15,12 +15,14 @@ type Note = {
 
 export const Board: React.FC = () => {
   const { boardId } = useParams<{ boardId: string }>();
+  const location = useLocation();
 
   if (!boardId) return <div>Invalid boardId</div>;
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [showInput, setShowInput] = useState(false);
   const [text, setText] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const [draggingNote, setDraggingNote] = useState<Note | null>(null);
   const offsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -112,6 +114,15 @@ export const Board: React.FC = () => {
     setDraggingNote(null);
   };
 
+  const shareUrl = window.location.origin + location.pathname;
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
+
   return (
     <div
       ref={boardRef}
@@ -119,15 +130,38 @@ export const Board: React.FC = () => {
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
     >
+
+      <div style={{
+        position: "absolute", left: 16, top: 8, zIndex: 3,
+        background: "#fff", padding: "7px 12px",
+        borderRadius: 8, border: "1px solid #ccc",
+        boxShadow: "0 2px 8px #0001",
+        display: "flex", alignItems: "center",
+        gap: 8, fontSize: 14
+      }}>
+        <span style={{ color: "#555" }}>共有リンク:</span>
+        <span style={{ maxWidth: 400, overflowWrap: "anywhere", color: "#212121", userSelect: "text" }}>{shareUrl}</span>
+        <button
+          onClick={handleCopyLink}
+          style={{
+            marginLeft: 6, padding: "2px 10px", fontSize: 13, border: "1px solid #888",
+            borderRadius: 6, background: "#f6f8fa", cursor: "pointer"
+          }}
+        >コピー</button>
+        {copied && (
+          <span style={{ color: "#187c2b", marginLeft: 5 }}>コピーしました</span>
+        )}
+      </div>
+
       <button
         onClick={() => setShowInput(true)}
-        style={{ position: "absolute", left: 16, top: 16, zIndex: 2 }}
+        style={{ position: "absolute", left: 16, top: 64, zIndex: 2 }}
       >
         付箋追加
       </button>
       {showInput && (
         <div style={{
-          position: "absolute", left: 16, top: 56,
+          position: "absolute", left: 16, top: 104,
           background: "#fff", padding: 8, border: "1px solid #ccc", borderRadius: 6, zIndex: 2
         }}>
           <input
