@@ -108,6 +108,12 @@ dev-steps02（認証・共有・権限・機能拡張）完了後に行う、
 - Tailwind のクラスが反映される
 - 画面表示が崩れていない
 
+作業時メモ：
+- Tailwind は v4 を使用
+- shadcn/ui では v3 互換の tailwind.config.ts を併用する
+- Tailwind の shadcn/ui 依存を次の工程で追加する予定
+  - `pnpm add class-variance-authority clsx tailwind-merge lucide-react`
+
 ### 2. shadcn/ui 導入（最小）
 
 目的：
@@ -225,7 +231,7 @@ firebase deploy --only hosting
 
 ## 想定作業時間（目安）
 
-- [ ] Tailwind導入：30〜90分
+- [x] Tailwind導入：30〜90分
 - [ ] shadcn導入：30〜90分
 - [ ] フォント設定：20〜60分
 - [ ] Top画面整備：30〜90分
