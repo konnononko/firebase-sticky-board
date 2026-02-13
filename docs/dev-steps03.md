@@ -111,8 +111,6 @@ dev-steps02（認証・共有・権限・機能拡張）完了後に行う、
 作業時メモ：
 - Tailwind は v4 を使用
 - shadcn/ui では v3 互換の tailwind.config.ts を併用する
-- Tailwind の shadcn/ui 依存を次の工程で追加する予定
-  - `pnpm add class-variance-authority clsx tailwind-merge lucide-react`
 
 ### 2. shadcn/ui 導入（最小）
 
@@ -130,6 +128,11 @@ dev-steps02（認証・共有・権限・機能拡張）完了後に行う、
 完了条件：
 - Button / Input を置換できる状態
 - 依存追加が最小で収まっている
+
+作業時メモ：
+- shadcn導入コマンド
+  - `pnpm dlx shadcn@latest init`
+  - `pnpm dlx shadcn@latest add button input card dialog`
 
 ### 3. 最低限のフォント設定（プロダクト感）
 
@@ -232,7 +235,7 @@ firebase deploy --only hosting
 ## 想定作業時間（目安）
 
 - [x] Tailwind導入：30〜90分
-- [ ] shadcn導入：30〜90分
+- [x] shadcn導入：30〜90分
 - [ ] フォント設定：20〜60分
 - [ ] Top画面整備：30〜90分
 - [ ] Board基礎整備：30〜90分
