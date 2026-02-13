@@ -3,6 +3,7 @@ import { auth, db } from "../firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export const Top: React.FC = () => {
   const [creating, setCreating] = useState(false);
@@ -51,18 +52,18 @@ export const Top: React.FC = () => {
       <p>付箋ホワイトボードを作る</p>
       <div style={{ margin: 16 }}>
         {!user || user.isAnonymous ? (
-          <button onClick={handleSignIn}>
+          <Button onClick={handleSignIn}>
             Googleでログイン
-          </button>
+          </Button>
         ) : (
           <div style={{ marginBottom: 12 }}>ログイン済: {displayName}</div>
         )}
-        <button
+        <Button
           disabled={creating || user?.isAnonymous}
           onClick={handleCreateBoard}
         >
           ボードを作成
-        </button>
+        </Button>
       </div>
       {error && <div style={{ color: "#a00", marginTop: 16 }}>{error}</div>}
     </div>
