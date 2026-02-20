@@ -4,6 +4,8 @@ import { db, auth } from "../firebase";
 import { collection, onSnapshot, QueryDocumentSnapshot, addDoc, serverTimestamp, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import type { DocumentData } from "firebase/firestore"
 import { signInAnonymously, onAuthStateChanged } from "firebase/auth";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 type Note = {
   id: string;
@@ -126,55 +128,57 @@ export const Board: React.FC = () => {
   return (
     <div
       ref={boardRef}
-      style={{ position: "relative", width: "100vw", height: "100vh", background: "#f8f8f8" }}
+      className="min-h-screen w-full bg-muted relative"
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
     >
 
-      <div style={{
-        position: "absolute", left: 16, top: 8, zIndex: 3,
-        background: "#fff", padding: "7px 12px",
-        borderRadius: 8, border: "1px solid #ccc",
-        boxShadow: "0 2px 8px #0001",
-        display: "flex", alignItems: "center",
-        gap: 8, fontSize: 14
-      }}>
-        <span style={{ color: "#555" }}>共有リンク:</span>
-        <span style={{ maxWidth: 400, overflowWrap: "anywhere", color: "#212121", userSelect: "text" }}>{shareUrl}</span>
-        <button
+      <Card className="absolute left-4 top-4 z-10 flex flex-row items-center gap-3 px-4 py-2 max-w-md border bg-card shadow">
+        <span className="text-muted-foreground">共有リンク:</span>
+        <span className="font-mono text-sm max-w-[220px] truncate select-text" title={shareUrl}>{shareUrl}</span>
+        <Button
           onClick={handleCopyLink}
-          style={{
-            marginLeft: 6, padding: "2px 10px", fontSize: 13, border: "1px solid #888",
-            borderRadius: 6, background: "#f6f8fa", cursor: "pointer"
-          }}
-        >コピー</button>
+          size="sm"
+          variant="outline"
+          className="ml-1"
+        >
+          コピー
+        </Button>
         {copied && (
-          <span style={{ color: "#187c2b", marginLeft: 5 }}>コピーしました</span>
+          <span className="text-green-600 text-xs ml-2">コピーしました</span>
         )}
-      </div>
+      </Card>
 
-      <button
+      <Button
         onClick={() => setShowInput(true)}
-        style={{ position: "absolute", left: 16, top: 64, zIndex: 2 }}
+        className="absolute left-4 top-24 z-10"
+        size="sm"
+        variant="default"
       >
         付箋追加
-      </button>
+      </Button>
       {showInput && (
-        <div style={{
-          position: "absolute", left: 16, top: 104,
-          background: "#fff", padding: 8, border: "1px solid #ccc", borderRadius: 6, zIndex: 2
-        }}>
+        <Card className="absolute left-4 top-36 z-20 p-3 flex flex-row gap-2 items-center">
           <input
             type="text"
             value={text}
             onChange={e => setText(e.target.value)}
             placeholder="付箋テキスト"
-            style={{ marginRight: 8 }}
+            className="border rounded px-2 py-1 text-sm"
             autoFocus
           />
-          <button onClick={handleAddNote} disabled={!text.trim()}>追加</button>
-          <button onClick={() => { setShowInput(false); setText(""); }}>キャンセル</button>
-        </div>
+          <Button onClick={handleAddNote} disabled={!text.trim()} size="sm">
+            追加
+          </Button>
+          <Button
+            onClick={() => { setShowInput(false); setText(""); }}
+            type="button"
+            variant="ghost"
+            size="sm"
+          >
+            キャンセル
+          </Button>
+        </Card>
       )}
       {notes.map((note) => (
         <div
