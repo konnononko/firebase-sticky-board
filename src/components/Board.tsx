@@ -184,31 +184,38 @@ export const Board: React.FC = () => {
         <div
           key={note.id}
           style={{
-            position: "absolute",
             left: note.x,
             top: note.y,
-            minWidth: 120,
-            minHeight: 80,
-            background: note.color ?? "#fffbe7",
-            border: "1px solid #e0c97f",
-            borderRadius: 8,
-            padding: 8,
-            boxShadow: "2px 2px 8px #0001",
-            userSelect: "none",
-            color: "#222",
+            background: note.color ?? "#fffbe7"
           }}
+          className={`
+            absolute min-w-[120px] min-h-[80px]
+            p-3 pr-7 rounded-md
+            border border-[#e0c97f] shadow-md
+            select-none
+            text-[15px] leading-relaxed text-[#222]
+            break-words whitespace-pre-wrap
+            transition-shadow
+            cursor-grab
+            hover:shadow-lg
+            bg-opacity-90
+            z-0
+          `}
           onPointerDown={e => handlePointerDown(e, note)}
         >
-          {note.text}
-          <div style={{display: "flex", gap: 4, marginTop: 8}}>
+          <div className="w-full break-words">
+            {note.text}
+          </div>
+          <div className="flex gap-1 mt-2">
             {["#fffbe7", "#c2e7ff", "#ffd6e0"].map(c => (
               <button
                 key={c}
-                style={{
-                  width: 20, height: 20, borderRadius: "50%",
-                  border: c === (note.color ?? "#fffbe7") ? "2px solid #444" : "1px solid #ccc",
-                  background: c, cursor: "pointer",
-                }}
+                className={`w-5 h-5 rounded-full border transition-all
+                  ${c === (note.color ?? "#fffbe7") 
+                    ? "border-gray-600 ring-2 ring-gray-400" 
+                    : "border-gray-300 hover:ring-2 hover:ring-gray-300"}
+                `}
+                style={{ background: c }}
                 onClick={() => handleChangeColor(note.id, c)}
                 aria-label={`色を${c}に変更`}
               />
@@ -216,21 +223,19 @@ export const Board: React.FC = () => {
           </div>
           <button
             onClick={() => handleDeleteNote(note.id)}
-            style={{
-              position: "absolute",
-              top: 4,
-              right: 4,
-              background: "transparent",
-              border: "none",
-              color: "#a55",
-              fontWeight: "bold",
-              fontSize: 16,
-              cursor: "pointer",
-              zIndex: 1,
-            }}
+            className={`
+              absolute top-2 right-2 p-0.5 rounded
+              bg-transparent border-none text-red-500 font-bold
+              text-base cursor-pointer z-10 opacity-0 hover:opacity-100
+              transition-opacity
+              hover:bg-red-50
+              focus:opacity-100
+            `}
+            style={{lineHeight: "1"}}
             aria-label="付箋を削除"
+            tabIndex={-1}
           >
-            x
+            ×
           </button>
         </div>
       ))}
