@@ -180,65 +180,69 @@ export const Board: React.FC = () => {
           </Button>
         </Card>
       )}
-      {notes.map((note) => (
-        <div
-          key={note.id}
-          style={{
-            left: note.x,
-            top: note.y,
-            background: note.color ?? "#fffbe7"
-          }}
-          className={`
-            absolute min-w-[120px] min-h-[80px]
-            p-3 pr-7 rounded-md
-            border border-[#e0c97f] shadow-md
-            select-none
-            text-[15px] leading-relaxed text-[#222]
-            break-words whitespace-pre-wrap
-            transition-shadow
-            cursor-grab
-            hover:shadow-lg
-            bg-opacity-90
-            z-0
-          `}
-          onPointerDown={e => handlePointerDown(e, note)}
-        >
-          <div className="w-full break-words">
-            {note.text}
-          </div>
-          <div className="flex gap-1 mt-2">
-            {["#fffbe7", "#c2e7ff", "#ffd6e0"].map(c => (
-              <button
-                key={c}
-                className={`w-5 h-5 rounded-full border transition-all
-                  ${c === (note.color ?? "#fffbe7") 
-                    ? "border-gray-600 ring-2 ring-gray-400" 
-                    : "border-gray-300 hover:ring-2 hover:ring-gray-300"}
-                `}
-                style={{ background: c }}
-                onClick={() => handleChangeColor(note.id, c)}
-                aria-label={`色を${c}に変更`}
-              />
-            ))}
-          </div>
-          <button
-            onClick={() => handleDeleteNote(note.id)}
+      {notes.map((note) => {
+        const isDragging = draggingNote && draggingNote.id === note.id;
+        return (
+          <div
+            key={note.id}
+            style={{
+              left: note.x,
+              top: note.y,
+              background: note.color ?? "#fffbe7"
+            }}
             className={`
-              absolute top-2 right-2 p-0.5 rounded
-              bg-transparent border-none text-red-500 font-bold
-              text-base cursor-pointer z-10 opacity-0 hover:opacity-100
-              transition-opacity
-              hover:bg-red-50
-              focus:opacity-100
+              absolute min-w-[120px] min-h-[80px]
+              p-3 pr-7 rounded-md
+              border border-[#e0c97f]
+              select-none
+              text-[15px] leading-relaxed text-[#222]
+              break-words whitespace-pre-wrap
+              transition-shadow transition-z
+              ${isDragging ? "shadow-xl z-20 cursor-grabbing" : "shadow-md z-0 cursor-grab"}
+              hover:shadow-lg
+              bg-opacity-90
+              group
             `}
-            style={{lineHeight: "1"}}
-            aria-label="付箋を削除"
-            tabIndex={-1}
+            onPointerDown={e => handlePointerDown(e, note)}
           >
-            ×
-          </button>
-        </div>
-      ))}
+            <div className="w-full break-words">
+              {note.text}
+            </div>
+            <div className="flex gap-1 mt-2">
+              {["#fffbe7", "#c2e7ff", "#ffd6e0"].map(c => (
+                <button
+                  key={c}
+                  className={`w-5 h-5 rounded-full border transition-all
+                    ${c === (note.color ?? "#fffbe7")
+                      ? "border-gray-600 ring-2 ring-gray-400"
+                      : "border-gray-300 hover:ring-2 hover:ring-gray-300"}
+                      hover:scale-110
+                  `}
+                  style={{ background: c }}
+                  onClick={() => handleChangeColor(note.id, c)}
+                  aria-label={`色を${c}に変更`}
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => handleDeleteNote(note.id)}
+              className={`
+                absolute top-2 right-2 p-0.5 rounded
+                bg-transparent border-none text-red-500 font-bold
+                text-base cursor-pointer z-10 opacity-0 group-hover:opacity-100
+                transition-opacity
+                hover:bg-red-50
+                focus:opacity-100
+              `}
+              style={{lineHeight: "1"}}
+              aria-label="付箋を削除"
+              tabIndex={-1}
+            >
+              ×
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 };
