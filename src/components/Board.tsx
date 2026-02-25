@@ -164,7 +164,7 @@ export const Board: React.FC = () => {
             value={text}
             onChange={e => setText(e.target.value)}
             placeholder="付箋テキスト"
-            className="border rounded px-2 py-1 text-sm"
+            className="border rounded px-2 py-1 text-sm w-[180px] max-w-[220px]"
             autoFocus
           />
           <Button onClick={handleAddNote} disabled={!text.trim()} size="sm">
@@ -186,12 +186,12 @@ export const Board: React.FC = () => {
           <div
             key={note.id}
             style={{
-              left: note.x,
-              top: note.y,
+              left: Math.max(8, Math.min(note.x, window.innerWidth - 280)),
+              top: Math.max(8, Math.min(note.y, window.innerHeight - 100)),
               background: note.color ?? "#fffbe7"
             }}
             className={`
-              absolute min-w-[120px] min-h-[80px]
+              absolute min-w-[120px] min-h-[80px] max-w-[260px]
               p-3 pr-7 rounded-md
               border border-[#e0c97f]
               select-none
