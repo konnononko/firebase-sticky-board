@@ -2,18 +2,39 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function signedIn() { return request.auth != null; }
+    function nonAnonymous() {
+      return signedIn() && request.auth.token.firebase.sign_in_provider != "anonymous";
+    }
+
     match /boards/{boardId} {
       allow read: if true;
 
-      allow create: if request.auth != null && request.auth.token.firebase.sign_in_provider != "anonymous";
+      // boards作成は非匿名ユーザーのみ、ownerUid一致を確認
+      allow create: if nonAnonymous()
+        && request.resource.data.ownerUid == request.auth.uid;
 
-      allow update, delete: if
-        request.auth != null &&
-        resource.data.ownerUid == request.auth.uid;
+      // boards更新・削除はオーナーのみ
+      allow update, delete: if signedIn()
+        && resource.data.ownerUid == request.auth.uid;
 
       match /notes/{noteId} {
         allow read: if true;
-        allow create, update, delete: if request.auth != null;
+
+        function validNote() {
+          return request.resource.data.keys().hasOnly([
+            'text', 'x', 'y', 'color', 'createdAt', 'updatedAt'
+          ])
+          && request.resource.data.text is string
+          && request.resource.data.text.size() <= 2000
+          && request.resource.data.x is number
+          && request.resource.data.y is number
+          && request.resource.data.color is string;
+        }
+
+        // notes: 認証済みユーザーなら許可（匿名含む）+ 最低限の検証
+        allow create, update: if signedIn() && validNote();
+        allow delete: if signedIn();
       }
     }
   }
