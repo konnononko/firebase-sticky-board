@@ -10,9 +10,14 @@ service cloud.firestore {
     match /boards/{boardId} {
       allow read: if true;
 
+      function validBoardCreate() {
+        return request.resource.data.keys().hasOnly(['ownerUid','createdAt','visibility'])
+          && request.resource.data.ownerUid == request.auth.uid
+          && request.resource.data.visibility == "public-link";
+      }
+
       // boards作成は非匿名ユーザーのみ、ownerUid一致を確認
-      allow create: if nonAnonymous()
-        && request.resource.data.ownerUid == request.auth.uid;
+      allow create: if nonAnonymous() && validBoardCreate();
 
       // boards更新・削除はオーナーのみ
       allow update, delete: if signedIn()
