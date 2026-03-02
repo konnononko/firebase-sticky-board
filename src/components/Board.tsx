@@ -12,7 +12,7 @@ type Note = {
   text: string;
   x: number;
   y: number;
-  color?: string;
+  color: string;
 };
 
 export const Board: React.FC = () => {
@@ -59,15 +59,13 @@ export const Board: React.FC = () => {
   const handleAddNote = async () => {
     const notesRef = collection(db, "boards", boardId, "notes");
     await addDoc(notesRef, {
-      text,
+      text: "",
       x: 60 + Math.random() * 400,
       y: 60 + Math.random() * 300,
       color: "#fffbe7",
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
-    setText("");
-    setShowInput(false);
   };
 
   const handleDeleteNote = async (id: string) => {
@@ -149,7 +147,7 @@ export const Board: React.FC = () => {
       </Card>
 
       <Button
-        onClick={() => setShowInput(true)}
+        onClick={handleAddNote}
         className="absolute left-4 top-24 z-10"
         size="sm"
         variant="default"
@@ -187,7 +185,7 @@ export const Board: React.FC = () => {
             style={{
               left: Math.max(8, Math.min(note.x, window.innerWidth - 280)),
               top: Math.max(8, Math.min(note.y, window.innerHeight - 100)),
-              background: note.color ?? "#fffbe7"
+              background: note.color
             }}
             className={`
               absolute min-w-[120px] min-h-[80px] max-w-[260px]
@@ -212,7 +210,7 @@ export const Board: React.FC = () => {
                 <button
                   key={c}
                   className={`w-5 h-5 rounded-full border transition-all
-                    ${c === (note.color ?? "#fffbe7")
+                    ${c === (note.color)
                       ? "border-gray-600 ring-2 ring-gray-400"
                       : "border-gray-300 hover:ring-2 hover:ring-gray-300"}
                       hover:scale-110
