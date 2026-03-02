@@ -57,7 +57,6 @@ export const Board: React.FC = () => {
   }, [draggingNote, boardId]);
 
   const handleAddNote = async () => {
-    if (!text.trim()) return;
     const notesRef = collection(db, "boards", boardId, "notes");
     await addDoc(notesRef, {
       text,
@@ -167,7 +166,7 @@ export const Board: React.FC = () => {
             className="border rounded px-2 py-1 text-sm w-[180px] max-w-[220px]"
             autoFocus
           />
-          <Button onClick={handleAddNote} disabled={!text.trim()} size="sm">
+          <Button onClick={handleAddNote} size="sm">
             追加
           </Button>
           <Button
