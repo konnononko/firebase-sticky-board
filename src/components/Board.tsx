@@ -27,6 +27,7 @@ export const Board: React.FC = () => {
   const [draggingNote, setDraggingNote] = useState<Note | null>(null);
   const offsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const boardRef = useRef<HTMLDivElement>(null);
+  const draggedRef = useRef(false);
 
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [draftText, setDraftText] = useState("");
@@ -80,6 +81,7 @@ export const Board: React.FC = () => {
   };
 
   const handlePointerDown = (e: React.PointerEvent, note: Note) => {
+    draggedRef.current = false;
     setDraggingNote(note);
     const boardRect = boardRef.current?.getBoundingClientRect();
     const offsetX = e.clientX - note.x - (boardRect?.left || 0);
@@ -90,6 +92,7 @@ export const Board: React.FC = () => {
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!draggingNote) return;
+    draggedRef.current = true;
     const boardRect = boardRef.current?.getBoundingClientRect();
     const newX = e.clientX - offsetRef.current.x - (boardRect?.left || 0);
     const newY = e.clientY - offsetRef.current.y - (boardRect?.top || 0);
@@ -205,6 +208,10 @@ export const Board: React.FC = () => {
               if(!isEditing) handlePointerDown(e, note);
             }}
             onClick={() => {
+              if (draggedRef.current) {
+                draggedRef.current = false;
+                return;
+              }
               if (!isEditing) handleStartEdit(note);
             }}
           >
@@ -244,14 +251,16 @@ export const Board: React.FC = () => {
                       hover:scale-110
                   `}
                   style={{ background: c }}
-                  onClick={() => handleChangeColor(note.id, c)}
                   aria-label={`色を${c}に変更`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleChangeColor(note.id, c);
+                  }}
                   onPointerDown={e => e.stopPropagation()}
                 />
               ))}
             </div>
             <button
-              onClick={() => handleDeleteNote(note.id)}
               className={`
                 absolute top-2 right-2 p-0.5 rounded
                 bg-transparent border-none text-red-500 font-bold
@@ -263,6 +272,10 @@ export const Board: React.FC = () => {
               style={{lineHeight: "1"}}
               aria-label="付箋を削除"
               tabIndex={-1}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteNote(note.id);
+              }}
               onPointerDown={e => e.stopPropagation()}
             >
               ×
