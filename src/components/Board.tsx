@@ -60,7 +60,7 @@ export const Board: React.FC = () => {
 
   const handleAddNote = async () => {
     const notesRef = collection(db, "boards", boardId, "notes");
-    await addDoc(notesRef, {
+    const docRef = await addDoc(notesRef, {
       text: "",
       x: 60 + Math.random() * 400,
       y: 60 + Math.random() * 300,
@@ -68,6 +68,8 @@ export const Board: React.FC = () => {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
+    setEditingNoteId(docRef.id);
+    setDraftText("");
   };
 
   const handleDeleteNote = async (id: string) => {
