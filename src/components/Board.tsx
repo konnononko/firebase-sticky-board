@@ -22,8 +22,6 @@ export const Board: React.FC = () => {
   if (!boardId) return <div>Invalid boardId</div>;
 
   const [notes, setNotes] = useState<Note[]>([]);
-  const [showInput, setShowInput] = useState(false);
-  const [text, setText] = useState("");
   const [copied, setCopied] = useState(false);
 
   const [draggingNote, setDraggingNote] = useState<Note | null>(null);
@@ -179,29 +177,6 @@ export const Board: React.FC = () => {
       >
         付箋追加
       </Button>
-      {showInput && (
-        <Card className="absolute left-4 top-36 z-20 p-3 flex flex-row gap-2 items-center">
-          <input
-            type="text"
-            value={text}
-            onChange={e => setText(e.target.value)}
-            placeholder="付箋テキスト"
-            className="border rounded px-2 py-1 text-sm w-[180px] max-w-[220px]"
-            autoFocus
-          />
-          <Button onClick={handleAddNote} size="sm">
-            追加
-          </Button>
-          <Button
-            onClick={() => { setShowInput(false); setText(""); }}
-            type="button"
-            variant="ghost"
-            size="sm"
-          >
-            キャンセル
-          </Button>
-        </Card>
-      )}
       {notes.map((note) => {
         const isDragging = draggingNote && draggingNote.id === note.id;
         const isEditing = editingNoteId === note.id;
@@ -229,7 +204,6 @@ export const Board: React.FC = () => {
             onPointerDown={e => {
               if(!isEditing) handlePointerDown(e, note);
             }}
-            onDoubleClick={() => handleStartEdit(note)}
             onClick={() => {
               if (!isEditing) handleStartEdit(note);
             }}
@@ -252,6 +226,8 @@ export const Board: React.FC = () => {
                       handleSaveEdit(note);
                     }
                   }}
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
                 />
               ) : (
                 note.text || <span className="text-gray-400">（クリックで編集）</span>
