@@ -30,6 +30,9 @@ export const Board: React.FC = () => {
   const offsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const boardRef = useRef<HTMLDivElement>(null);
 
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [draftText, setDraftText] = useState("");
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, user => {
       if (!user) signInAnonymously(auth);
@@ -122,6 +125,28 @@ export const Board: React.FC = () => {
     });
   };
 
+  const handleStartEdit = (note: Note) => {
+    setEditingNoteId(note.id);
+    setDraftText(note.text);
+  };
+
+  const handleSaveEdit = async (note: Note) => {
+    if (draftText !== note.text) {
+      const noteRef = doc(db, "boards", boardId, "notes", note.id);
+      await updateDoc(noteRef, {
+        text: draftText,
+        updatedAt: serverTimestamp(),
+      })
+    }
+    setEditingNoteId(null);
+    setDraftText("");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingNoteId(null);
+    setDraftText("");
+  };
+
   return (
     <div
       ref={boardRef}
@@ -179,6 +204,7 @@ export const Board: React.FC = () => {
       )}
       {notes.map((note) => {
         const isDragging = draggingNote && draggingNote.id === note.id;
+        const isEditing = editingNoteId === note.id;
         return (
           <div
             key={note.id}
@@ -200,10 +226,36 @@ export const Board: React.FC = () => {
               bg-opacity-90
               group
             `}
-            onPointerDown={e => handlePointerDown(e, note)}
+            onPointerDown={e => {
+              if(!isEditing) handlePointerDown(e, note);
+            }}
+            onDoubleClick={() => handleStartEdit(note)}
+            onClick={() => {
+              if (!isEditing) handleStartEdit(note);
+            }}
           >
             <div className="w-full break-words">
-              {note.text}
+              {isEditing ? (
+                <textarea
+                  className="w-full h-24 p-1 rounded border focus:outline-none focus:ring"
+                  value={draftText}
+                  autoFocus
+                  onChange={e => setDraftText(e.target.value)}
+                  onBlur={() => handleSaveEdit(note)}
+                  onKeyDown={e => {
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      handleCancelEdit();
+                    }
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSaveEdit(note);
+                    }
+                  }}
+                />
+              ) : (
+                note.text || <span className="text-gray-400">（クリックで編集）</span>
+              )}
             </div>
             <div className="flex gap-1 mt-2">
               {["#fffbe7", "#c2e7ff", "#ffd6e0"].map(c => (
@@ -218,6 +270,7 @@ export const Board: React.FC = () => {
                   style={{ background: c }}
                   onClick={() => handleChangeColor(note.id, c)}
                   aria-label={`色を${c}に変更`}
+                  onPointerDown={e => e.stopPropagation()}
                 />
               ))}
             </div>
@@ -234,6 +287,7 @@ export const Board: React.FC = () => {
               style={{lineHeight: "1"}}
               aria-label="付箋を削除"
               tabIndex={-1}
+              onPointerDown={e => e.stopPropagation()}
             >
               ×
             </button>
