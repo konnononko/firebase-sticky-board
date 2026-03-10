@@ -42,5 +42,9 @@ service cloud.firestore {
         allow delete: if signedIn();
       }
     }
+
+    match /boards/{document=**} {
+      allow list: if signedIn();
+    }
   }
 }
