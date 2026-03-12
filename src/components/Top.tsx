@@ -5,13 +5,19 @@ import { collection, doc, addDoc, getDocs, deleteDoc, serverTimestamp, query, wh
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import type { User } from "firebase/auth"
+import type { User } from "firebase/auth";
+import type { Timestamp } from "firebase/firestore";
+
+type BoardSummary = {
+  id: string;
+  createdAt?: Timestamp;
+}
 
 export const Top: React.FC = () => {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const [boards, setBoards] = useState<{ id: string; createdAt: any}[]>([]);
+  const [boards, setBoards] = useState<BoardSummary[]>([]);
   const [loadingBoards, setLoadingBoards] = useState(false);
 
   const handleSignIn = async () => {
