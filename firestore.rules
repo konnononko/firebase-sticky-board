@@ -8,7 +8,8 @@ service cloud.firestore {
     }
 
     match /boards/{boardId} {
-      allow read: if true;
+      allow get: if true;
+      allow list: if signedIn();
 
       function validBoardCreate() {
         return request.resource.data.keys().hasOnly(['ownerUid','createdAt','visibility'])
@@ -41,10 +42,6 @@ service cloud.firestore {
         allow create, update: if signedIn() && validNote();
         allow delete: if signedIn();
       }
-    }
-
-    match /boards/{document=**} {
-      allow list: if signedIn();
     }
   }
 }
