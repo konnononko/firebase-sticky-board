@@ -195,7 +195,7 @@ export const Board: React.FC = () => {
             }}
             className={`
               absolute min-w-[120px] min-h-[80px] max-w-[260px]
-              p-3 pr-7 rounded-md
+              p-3 pr-7 rounded-xl
               border border-[#e0c97f]
               select-none
               text-[15px] leading-relaxed text-[#222]
