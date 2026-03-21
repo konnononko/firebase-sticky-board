@@ -153,7 +153,7 @@ export const Board: React.FC = () => {
   return (
     <div
       ref={boardRef}
-      className="min-h-screen w-full bg-muted relative"
+      className="min-h-screen w-full relative board-bg-grid"
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
     >

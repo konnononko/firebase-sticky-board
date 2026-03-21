@@ -124,3 +124,11 @@
         @apply bg-background text-foreground font-sans;
     }
 }
+
+.board-bg-grid {
+  background-color: #f8fafc;
+  background-image:
+    linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+    linear-gradient(to bottom, #e5e7eb 1px, transparent 1px);
+  background-size: 32px 32px;
+}
